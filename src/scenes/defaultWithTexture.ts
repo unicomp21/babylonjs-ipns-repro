@@ -16,6 +16,7 @@ import { DirectionalLight } from "@babylonjs/core/Lights/directionalLight";
 import { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator";
 
 import "@babylonjs/core/Lights/Shadows/shadowGeneratorSceneComponent";
+import * as IPFS from 'ipfs-core';
 
 export class DefaultSceneWithTexture implements CreateSceneClass {
     createScene = async (
@@ -102,8 +103,22 @@ export class DefaultSceneWithTexture implements CreateSceneClass {
 
         shadowGenerator.getShadowMap()!.renderList!.push(sphere);
 
+        this.spawnIpnsTest().then(() => {
+           console.log("returned from spawnIpnsTest");
+        });
+        
         return scene;
     };
+    private async spawnIpnsTest() {
+        // The IPNS address you want to resolve.
+        const addr = '/ipns/ipfs.io'
+
+        const node = await IPFS.create();
+        for await (const name of node.name.resolve(addr)) {
+            console.log(name);
+            // /ipfs/QmQrX8hka2BtNHa8N8arAq16TCVx5qHcb46c5yPewRycLm
+        }
+    }
 }
 
 export default new DefaultSceneWithTexture();
