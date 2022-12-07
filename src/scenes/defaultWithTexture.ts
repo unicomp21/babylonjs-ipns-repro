@@ -14,9 +14,12 @@ import { Texture } from "@babylonjs/core/Materials/Textures/texture";
 import grassTextureUrl from "../../assets/grass.jpg";
 import { DirectionalLight } from "@babylonjs/core/Lights/directionalLight";
 import { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator";
+import {connect, StringCodec} from "nats.ws";
 
+// write some code that runs
 import "@babylonjs/core/Lights/Shadows/shadowGeneratorSceneComponent";
 import * as IPFS from 'ipfs-core';
+import {delay} from "@esfx/";
 
 export class DefaultSceneWithTexture implements CreateSceneClass {
     createScene = async (
@@ -106,6 +109,9 @@ export class DefaultSceneWithTexture implements CreateSceneClass {
         this.spawnIpnsTest().then(() => {
            console.log("returned from spawnIpnsTest");
         });
+        this.spawnWebsocketTest().then(() => {
+            console.log("returned from spawnWebsocketTest");
+        });
         
         return scene;
     };
@@ -118,6 +124,29 @@ export class DefaultSceneWithTexture implements CreateSceneClass {
             console.log(name);
             // /ipfs/QmQrX8hka2BtNHa8N8arAq16TCVx5qHcb46c5yPewRycLm
         }
+    }
+    private async spawnWebsocketTest() {
+        const nc1 = await connect({ servers: ["wss://mux.lunchgamer.com"]});
+        const nc2 = await connect({ servers: ["wss://mux.lunchgamer.com"]});
+
+        const sc = StringCodec();
+
+        const sub = nc1.subscribe("hello");
+        (async () => {
+            for await (const m of sub) {
+                console.log(`[${sub.getProcessed()}]: ${sc.decode(m.data)}`);
+            }
+            console.log("subscription closed");
+        })().then(() => {
+            console.log("exit subscription");
+        });
+
+        nc2.publish("hello", sc.encode("world"));
+        
+        await nc1.close();
+        await nc2.close();
+
+        console.log("conn2 established");
     }
 }
 
