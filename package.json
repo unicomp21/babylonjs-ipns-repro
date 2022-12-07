@@ -10,7 +10,8 @@
         "@babylonjs/loaders": "^5.29.0",
         "@babylonjs/materials": "^5.29.0",
         "ammo.js": "github:kripken/ammo.js",
-        "ipfs-core": "^0.17.0"
+        "ipfs-core": "^0.17.0",
+        "nats.ws": "^1.10.2"
     },
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^5.12.0",
